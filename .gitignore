@@ -1,5 +1,7 @@
+**/*.xcuserstate
+**/DerivedData
 .DS_Store
-xcode/DerivedData
+**/.DS_Store
 xcode/app.xcodeproj/project.xcworkspace/xcuserdata/*
 
 # Logs

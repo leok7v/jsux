@@ -25,6 +25,8 @@
 		B3B3F40C2D4AB3C300A2D406 /* app.css in Resources */ = {isa = PBXBuildFile; fileRef = B3B3F3F72D4AB3C300A2D406 /* app.css */; };
 		B3B3F40D2D4AB3C300A2D406 /* svgs.css in Resources */ = {isa = PBXBuildFile; fileRef = B3B3F3FD2D4AB3C300A2D406 /* svgs.css */; };
 		B3F440172D750D350040F0E5 /* AppRating.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3F440162D750D350040F0E5 /* AppRating.swift */; };
+		B3F440192D7519F10040F0E5 /* detect.js in Resources */ = {isa = PBXBuildFile; fileRef = B3F440182D7519F10040F0E5 /* detect.js */; };
+		B3F4401B2D751A070040F0E5 /* util.js in Resources */ = {isa = PBXBuildFile; fileRef = B3F4401A2D751A070040F0E5 /* util.js */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -53,6 +55,8 @@
 		B3D480C72D482F3400C5D9B1 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.2.sdk/System/Library/Frameworks/Metal.framework; sourceTree = DEVELOPER_DIR; };
 		B3D480C92D482F4000C5D9B1 /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.2.sdk/System/Library/Frameworks/MetalKit.framework; sourceTree = DEVELOPER_DIR; };
 		B3F440162D750D350040F0E5 /* AppRating.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppRating.swift; path = ../src/swift/AppRating.swift; sourceTree = SOURCE_ROOT; };
+		B3F440182D7519F10040F0E5 /* detect.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = detect.js; sourceTree = "<group>"; };
+		B3F4401A2D751A070040F0E5 /* util.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = util.js; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -131,6 +135,8 @@
 			children = (
 				B3B3F3F72D4AB3C300A2D406 /* app.css */,
 				B3B3F3F82D4AB3C300A2D406 /* app.js */,
+				B3F440182D7519F10040F0E5 /* detect.js */,
+				B3F4401A2D751A070040F0E5 /* util.js */,
 				B38B56012D74DE87005AFEAF /* observable.js */,
 				B36672182D71670700E8C643 /* ui.js */,
 				B394B4012D75052C006224B6 /* app.html */,
@@ -203,6 +209,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B3F4401B2D751A070040F0E5 /* util.js in Resources */,
 				B3756DE92D41D43100BCF111 /* Assets.xcassets in Resources */,
 				B38B56022D74DE87005AFEAF /* observable.js in Resources */,
 				B3B3F40A2D4AB3C300A2D406 /* app.js in Resources */,
@@ -210,6 +217,7 @@
 				B394B4022D75052C006224B6 /* app.html in Resources */,
 				B3B3F40C2D4AB3C300A2D406 /* app.css in Resources */,
 				B36672192D71670700E8C643 /* ui.js in Resources */,
+				B3F440192D7519F10040F0E5 /* detect.js in Resources */,
 				B3B3F40D2D4AB3C300A2D406 /* svgs.css in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

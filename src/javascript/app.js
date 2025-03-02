@@ -1,6 +1,9 @@
 "use strict"
+
 import { proxy, div, span, button, assert } from "./ui.js"
+
 import * as observable from "./observable.js"
+import * as util       from "./util.js"
 
 const debug = false
 
@@ -163,9 +166,23 @@ function theme() {
     })
 }
 
+export function inactive() {
+    console.log(">>>app.js inactive() global")
+    // called before quit and also on app being inactive on iOS
+    console.log("<<<app.js inactive()")
+    return "done"
+}
+
 export const app = {
-    init: () => {
+    init() {
         content_view.init(content_view.state)
+        util.log("app.init")
+    },
+    inactive() {
+        console.log(">>>app.js app.inactive()")
+        // called before quit and also on app being inactive on iOS
+        console.log("<<<app.js app.inactive()")
+        return "done"
     }
 }
 
@@ -223,3 +240,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     app.init(content_view)
 })
+
+document.addEventListener("DOMContentLoaded", function() {
+    console.log("DOMContentLoaded: DOM is parsed (HTML only).");
+});
+
+window.addEventListener("load", function() {
+    console.log("load: Entire page is fully loaded.");
+});
+
+window.addEventListener("beforeunload", function(event) {
+    console.log("beforeunload: Page about to unload.");
+});
+
+window.addEventListener("pagehide", function(event) {
+    console.log("pagehide: Page is hidden/unloaded.");
+});
+
+document.addEventListener("visibilitychange", function() {
+    console.log("visibilitychange:", document.visibilityState);
+    if (document.visibilityState === "hidden") {
+        console.log("visibilitychange: hidden (backgrounded)");
+    }
+});

@@ -26,29 +26,11 @@ class FileSchemeHandler: NSObject, WKURLSchemeHandler {
         send_response(url: url, urlSchemeTask: urlSchemeTask, message: "")
     }
 
-
-    func webView(_ webView: WKWebView, start urlSchemeTask: WKURLSchemeTask) {
-
-        func failWithError() {
-            let error = NSError(domain: NSURLErrorDomain,
-                                code: NSURLErrorResourceUnavailable,
-                                userInfo: nil);
-            urlSchemeTask.didFailWithError(error);
-        }
-
-        guard
-            let u = urlSchemeTask.request.url,
-            let p = u.path.removingPercentEncoding else {
-                failWithError(); return
-            }
-        let resourcePath = p.hasPrefix("/") ? String(p.dropFirst()) : p
-        guard let r = response(u, mt: mimeType(for: p)) else {
-            failWithError(); return
-        }
-        if resourcePath == "log" {
-            log(webView, urlSchemeTask: urlSchemeTask, url: u)
-            return
-        } else if resourcePath == "quit" {
+    func dispatch(_ path: String, request: String) -> String {
+        if path == "log" {
+            print(request)
+            return "done"
+        } else if path == "quit" {
             #if os(macOS)
             DispatchQueue.main.async {
                 NSApplication.shared.windows.forEach { $0.close() }
@@ -58,29 +40,61 @@ class FileSchemeHandler: NSObject, WKURLSchemeHandler {
                 fatalError("Quit")
             }
             #endif
-            return
+            return "done"
         }
-        guard let f = Bundle.main.url(forResource: resourcePath,
-                                      withExtension: nil) else {
-            failWithError(); return
+        return "";
+    }
+    
+    func webView(_ webView: WKWebView, start urlSchemeTask: WKURLSchemeTask) {
+
+        func failWithError() {
+            let error = NSError(domain: NSURLErrorDomain,
+                                code: NSURLErrorResourceUnavailable,
+                                userInfo: nil);
+            urlSchemeTask.didFailWithError(error);
         }
-        let ext = URL(fileURLWithPath: resourcePath).pathExtension.lowercased()
-        let binary = ["png", "jpg", "jpeg", "gif", "ico", "webp"].contains(ext)
-        urlSchemeTask.didReceive(r)
-        if binary {
-            guard let data = try? Data(contentsOf: f) else {
+        guard
+            let u = urlSchemeTask.request.url,
+            let p = u.path.removingPercentEncoding else {
                 failWithError(); return
             }
-            urlSchemeTask.didReceive(data)
-        } else {
-            guard
-                let fileContent = try? String(contentsOf: f, encoding: .utf8),
-                let data = fileContent.data(using: .utf8) else {
-                    failWithError(); return
-            }
-            urlSchemeTask.didReceive(data)
+        let resourcePath = p.hasPrefix("/") ? String(p.dropFirst()) : p
+        guard let r = response(u, mt: mimeType(for: p)) else {
+            failWithError(); return
         }
-        urlSchemeTask.didFinish()
+        if (resourcePath.starts(with: "call:")) {
+            let name = String(resourcePath.dropFirst(5))
+            if let body = urlSchemeTask.request.httpBody {
+                guard let request = String(data: body, encoding: .utf8) else {
+                    print("Failed to decode body as UTF-8 string.")
+                    return
+                }
+                let response = dispatch(name, request: request)
+                send_response(url: u, urlSchemeTask: urlSchemeTask, message: response)
+            }
+        } else {
+            guard let f = Bundle.main.url(forResource: resourcePath,
+                                          withExtension: nil) else {
+                failWithError(); return
+            }
+            let ext = URL(fileURLWithPath: resourcePath).pathExtension.lowercased()
+            let binary = ["png", "jpg", "jpeg", "gif", "ico", "webp"].contains(ext)
+            urlSchemeTask.didReceive(r)
+            if binary {
+                guard let data = try? Data(contentsOf: f) else {
+                    failWithError(); return
+                }
+                urlSchemeTask.didReceive(data)
+            } else {
+                guard
+                    let fileContent = try? String(contentsOf: f, encoding: .utf8),
+                    let data = fileContent.data(using: .utf8) else {
+                    failWithError(); return
+                }
+                urlSchemeTask.didReceive(data)
+            }
+            urlSchemeTask.didFinish()
+        }
     }
 
     func webView(_ webView: WKWebView, stop urlSchemeTask: WKURLSchemeTask) {

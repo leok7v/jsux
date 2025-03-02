@@ -14,7 +14,7 @@ public func inactive() {
     guard let view = webView else { return }
     var wait = true
 //  let start = DispatchTime.now().uptimeNanoseconds
-    view.evaluateJavaScript("app.inactive()") { result, error in
+    view.evaluateJavaScript("inactive()") { result, error in
         if let error = error {
             print("Error calling javascript inactive(): \(error)")
         } else {
@@ -98,6 +98,7 @@ struct jsux: App {
             queue: .main
         ) { _ in
             inactive()
+            app.inactive()
             app.stop()
         }
         #elseif os(iOS)
@@ -106,6 +107,7 @@ struct jsux: App {
             object: nil,
             queue: .main
         ) { _ in
+            inactive()
             app.inactive()
             app.stop()
         }
