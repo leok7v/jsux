@@ -1,3 +1,7 @@
+.DS_Store
+xcode/DerivedData
+xcode/app.xcodeproj/project.xcworkspace/xcuserdata/**/UserInterfaceState.xcuserstate
+
 # Logs
 logs
 *.log
