@@ -16,8 +16,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "B323E3622D1CDAB2007BA38C"
-               BuildableName = "jsux.app"
-               BlueprintName = "jsux"
+               BuildableName = "jsUX.app"
+               BlueprintName = "jsUX"
                ReferencedContainer = "container:app.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -45,8 +45,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "B323E3622D1CDAB2007BA38C"
-            BuildableName = "jsux.app"
-            BlueprintName = "jsux"
+            BuildableName = "jsUX.app"
+            BlueprintName = "jsUX"
             ReferencedContainer = "container:app.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -68,8 +68,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "B323E3622D1CDAB2007BA38C"
-            BuildableName = "jsux.app"
-            BlueprintName = "jsux"
+            BuildableName = "jsUX.app"
+            BlueprintName = "jsUX"
             ReferencedContainer = "container:app.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

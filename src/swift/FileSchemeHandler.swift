@@ -15,33 +15,6 @@ class FileSchemeHandler: NSObject, WKURLSchemeHandler {
         }
     }
 
-    func ask(_ webView: WKWebView, urlSchemeTask: WKURLSchemeTask, url: URL) {
-        if let body = urlSchemeTask.request.httpBody {
-            guard let request = String(data: body, encoding: .utf8) else {
-                print("Failed to decode body as UTF-8 string.")
-                return
-            }
-            request.withCString { s in gyptix.ask(s) }
-        }
-        send_response(url: url, urlSchemeTask: urlSchemeTask, message: "OK")
-    }
-
-    func run(_ webView: WKWebView, urlSchemeTask: WKURLSchemeTask, url: URL) {
-        if let body = urlSchemeTask.request.httpBody {
-            guard let request = String(data: body, encoding: .utf8) else {
-                print("Failed to decode body as UTF-8 string.")
-                return
-            }
-            request.withCString { s in gyptix.run(s) }
-        }
-        send_response(url: url, urlSchemeTask: urlSchemeTask, message: "")
-    }
-
-    func erase(_ webView: WKWebView, urlSchemeTask: WKURLSchemeTask, url: URL) {
-        gyptix.erase();
-        send_response(url: url, urlSchemeTask: urlSchemeTask, message: "")
-    }
-
     func log(_ webView: WKWebView, urlSchemeTask: WKURLSchemeTask, url: URL) {
         if let body = urlSchemeTask.request.httpBody {
             guard let request = String(data: body, encoding: .utf8) else {
@@ -53,34 +26,6 @@ class FileSchemeHandler: NSObject, WKURLSchemeHandler {
         send_response(url: url, urlSchemeTask: urlSchemeTask, message: "")
     }
 
-    func poll(_ webView: WKWebView, urlSchemeTask: WKURLSchemeTask, url: URL) {
-        var text: String = ""
-        if let body = urlSchemeTask.request.httpBody {
-            guard let request = String(data: body, encoding: .utf8) else {
-                print("Failed to decode body as UTF-8 string.")
-                return
-            }
-            request.withCString { s in
-                if let response = gyptix.poll(s) {
-                    text = String(cString: response)
-                    free(UnsafeMutableRawPointer(mutating: response))
-                } else {
-                    text = ""
-                }
-            }
-        }
-        send_response(url: url, urlSchemeTask: urlSchemeTask, message: text)
-    }
-
-    func is_answering(_ webView: WKWebView, urlSchemeTask: WKURLSchemeTask, url: URL) {
-        let text = gyptix.is_answering() != 0 ? "true" : "false"
-        send_response(url: url, urlSchemeTask: urlSchemeTask, message: text)
-    }
-
-    func is_running(_ webView: WKWebView, urlSchemeTask: WKURLSchemeTask, url: URL) {
-        let text = gyptix.is_running() != 0 ? "true" : "false"
-        send_response(url: url, urlSchemeTask: urlSchemeTask, message: text)
-    }
 
     func webView(_ webView: WKWebView, start urlSchemeTask: WKURLSchemeTask) {
 
@@ -100,26 +45,8 @@ class FileSchemeHandler: NSObject, WKURLSchemeHandler {
         guard let r = response(u, mt: mimeType(for: p)) else {
             failWithError(); return
         }
-        if resourcePath == "ask" {
-            ask(webView, urlSchemeTask: urlSchemeTask, url: u)
-            return
-        } else if resourcePath == "run" {
-            run(webView, urlSchemeTask: urlSchemeTask, url: u)
-            return
-        } else if resourcePath == "erase" {
-            erase(webView, urlSchemeTask: urlSchemeTask, url: u)
-            return
-        } else if resourcePath == "log" {
+        if resourcePath == "log" {
             log(webView, urlSchemeTask: urlSchemeTask, url: u)
-            return
-        } else if resourcePath == "poll" {
-            poll(webView, urlSchemeTask: urlSchemeTask, url: u)
-            return
-        } else if resourcePath == "is_answering" {
-            is_answering(webView, urlSchemeTask: urlSchemeTask, url: u)
-            return
-        } else if resourcePath == "is_running" {
-            is_running(webView, urlSchemeTask: urlSchemeTask, url: u)
             return
         } else if resourcePath == "quit" {
             #if os(macOS)
@@ -171,17 +98,17 @@ class FileSchemeHandler: NSObject, WKURLSchemeHandler {
         }
     }
     
-    let allowedOrigin = "gyptix://"
+    let allowedOrigin = "app://"
     
     func response(_ u: URL, mt: String) -> HTTPURLResponse? {
         let responseHeaders = [
             "Access-Control-Allow-Origin": allowedOrigin,
             "Content-Type": mt,
             "Content-Security-Policy":
-                "default-src 'self' gyptix://;" +
-                "img-src 'self' gyptix:// data:;" +
-                "style-src 'self' gyptix:// 'unsafe-inline';" +
-                "script-src 'self' gyptix:// 'unsafe-inline';"
+                "default-src 'self' app://;" +
+                "img-src 'self' app:// data:;" +
+                "style-src 'self' app:// 'unsafe-inline';" +
+                "script-src 'self' app:// 'unsafe-inline';"
         ]
         return HTTPURLResponse(url: u,
                                statusCode: 200,

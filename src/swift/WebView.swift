@@ -46,7 +46,7 @@ struct WebView: ViewRepresentable {
     #if os(macOS)
     func makeNSView(context: Context) -> WKWebView {
         let config = WKWebViewConfiguration()
-        config.setURLSchemeHandler(schemeHandler, forURLScheme: "gyptix")
+        config.setURLSchemeHandler(schemeHandler, forURLScheme: "app")
         config.preferences.setValue(true, forKey: "developerExtrasEnabled")
         let wv = WKWebView(frame: .zero, configuration: config)
         wv.configuration.preferences.setValue(true,
@@ -54,7 +54,7 @@ struct WebView: ViewRepresentable {
         wv.setValue(false, forKey: "drawsBackground")
         wv.navigationDelegate = context.coordinator
         webView = wv
-        if let url = URL(string: "gyptix://./" + self.htmlFileName + ".html") {
+        if let url = URL(string: "app://./" + self.htmlFileName + ".html") {
             wv.load(URLRequest(url: url))
         }
         return wv
@@ -66,7 +66,7 @@ struct WebView: ViewRepresentable {
     #elseif os(iOS)
     func makeUIView(context: Context) -> WKWebView {
         let config = WKWebViewConfiguration()
-        config.setURLSchemeHandler(schemeHandler, forURLScheme: "gyptix")
+        config.setURLSchemeHandler(schemeHandler, forURLScheme: "app")
         let wv = WKWebView(frame: .zero, configuration: config)
         wv.configuration.preferences.setValue(true,
                 forKey: "allowFileAccessFromFileURLs")
@@ -78,7 +78,7 @@ struct WebView: ViewRepresentable {
         wv.scrollView.isScrollEnabled = false // prevents input scroll up
         wv.navigationDelegate = context.coordinator
         webView = wv
-        if let url = URL(string: "gyptix://./" + self.htmlFileName + ".html") {
+        if let url = URL(string: "app://./" + self.htmlFileName + ".html") {
             wv.load(URLRequest(url: url))
         }
         return wv

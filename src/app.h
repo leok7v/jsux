@@ -5,11 +5,13 @@
 extern "C" {
 #endif
 
-void start(const char* model);
-void ask(const char* question);
-const char* answer(const char* interrupt);
-void inactive(void);
-void stop(void);
+struct app {
+    void (*start)(void);
+    void (*inactive)(void);
+    void (*stop)(void);
+};
+
+extern struct app app;
 
 #ifdef __cplusplus
 }

@@ -57,6 +57,7 @@ struct AppRating {
     }
     
     static func rateManually(appID: String) {
+        // TODO: wrong APP here
         if let url = URL(string:
             "https://apps.apple.com/us/app/gyptix/id\(appID)?action=write-review") {
             #if os(iOS)

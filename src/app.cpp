@@ -12,22 +12,24 @@ extern "C" {
 
 #define countof(a) (sizeof(a) / sizeof((a)[0]))
 
-void ask(const char* s) {}
-
-const char* answer(const char* i) {
-    return "";
-}
-
-void start(const char* model) {
+static void start(void) {
     printf("start\n");
 }
 
-void inactive(void) {
+static void inactive(void) {
     printf("inactive\n");
 }
 
-void stop(void) {
+static void stop(void) {
+    printf("stop\n");
 }
+
+extern struct app app = {
+    .start = start,
+    .inactive = inactive,
+    .stop = stop
+};
+
 
 }
 
