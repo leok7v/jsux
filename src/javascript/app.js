@@ -166,13 +166,6 @@ function theme() {
     })
 }
 
-export function inactive() {
-    console.log(">>>app.js inactive() global")
-    // called before quit and also on app being inactive on iOS
-    console.log("<<<app.js inactive()")
-    return "done"
-}
-
 export const app = {
     init() {
         content_view.init(content_view.state)
@@ -185,6 +178,8 @@ export const app = {
         return "done"
     }
 }
+
+window.inactive = app.inactive // IMPORTANT to allow call from swift side
 
 function test_observable() {
     observable.test(true) // vebose
@@ -241,13 +236,18 @@ document.addEventListener('DOMContentLoaded', () => {
     app.init(content_view)
 })
 
-document.addEventListener("DOMContentLoaded", function() {
+/*
+// The only two events coming are "DOMContentLoaded" and "load"
+ 
+ document.addEventListener("DOMContentLoaded", function() {
     console.log("DOMContentLoaded: DOM is parsed (HTML only).");
 });
 
 window.addEventListener("load", function() {
     console.log("load: Entire page is fully loaded.");
 });
+
+// NONE of events below are ever happen:
 
 window.addEventListener("beforeunload", function(event) {
     console.log("beforeunload: Page about to unload.");
@@ -263,3 +263,4 @@ document.addEventListener("visibilitychange", function() {
         console.log("visibilitychange: hidden (backgrounded)");
     }
 });
+*/
