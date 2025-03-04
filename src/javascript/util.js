@@ -1,6 +1,7 @@
 "use strict"
 
 import * as detect     from "./detect.js"
+import * as observable from "./observable.js"
 
 export function assert(condition, ...args) {
     if (!condition) {
@@ -40,7 +41,7 @@ export const load = (url) => http(url, "GET")
 
 export const post = (url, req = "", done = null) => http(url, "POST", req, done)
 
-export const console_log = [ "start" ]
+export const console_log = observable.observe([ "start" ])
 
 export const log = (...args) => {
     const message = args.join('')
@@ -67,7 +68,7 @@ function console_intercept() {
     })
 }
 
-console_intercept()
+// console_intercept()
 
 export const init_theme = () => {
     let theme = localStorage.getItem("settings.theme")

@@ -173,8 +173,14 @@ export function test(verbose = false) {
     const a = [10,20,30]
     const p = observe(a).deep(true).alter(true)
         .on({
-            changing: () => counts.changing++,
-            changed:  () => counts.changed++
+            changing: (o, t, w, v) => { // object, target, was, value
+                counts.changing++
+                console.log(`changing .o:${o} .t:${t} .w:${w} .v:${v}`)
+            },
+            changed: (o, t, w, v) => { // object, target, was, value
+                counts.changed++
+                console.log(`changed  .o:${o} .t:${t} .w:${w} .v:${v}`)
+            }
         })
     const m = p.length
     p.push(40)
@@ -184,7 +190,7 @@ export function test(verbose = false) {
     log("All tests passed")
 }
 
-const self_test_on_load = false
+const self_test_on_load = true
 
 function self_test() {
    test(true) // vebose
@@ -213,6 +219,14 @@ if (self_test_on_load) self_test()
 
 
 /*
+
+     const p = observe(a).deep(true).alter(true)
+         .on({
+             changing: () => counts.changing++,
+             changed:  () => counts.changed++
+         })
+
+ 
  
 ### observable.js
 

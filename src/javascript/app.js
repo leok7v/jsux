@@ -5,9 +5,10 @@ import * as util       from "./util.js"
 import * as dom        from "./dom.js"
 import { assert }      from "./util.js" // better assert
 
-const debug = false
+const debug = true
 
 export function render_log(log) {
+    // be careful not to use logging here because it will result in endless loop
     const list = dom.ul()
     for (const msg of util.console_log) {
         list.append(dom.li().text(msg))
@@ -27,11 +28,9 @@ function create_log() {
         overflowY: "auto",
         borderTop: "1px solid #ccc"
     })
-    observable.observe(util.console_log)
-        .on({ changed: () => render_log(log) })
+    util.console_log.on({ changed: () => render_log(log) })
     return log
 }
-
 
 const content_view = {
 
@@ -81,7 +80,9 @@ const content_view = {
         const maximum = block('max:\x20').append(max)
         const number = dom.div().display.block().append(dec).append(num).append(inc)
         content.append(minimum).append(maximum).append(number)
-        content.append(create_log())
+        let log = create_log()
+        content.append(log)
+        render_log(log) // DEBUG!
         document.getElementById('app').appendChild(content.element)
         for (const key of Object.keys(state)) { state[key].element.id = key }
         min.on({ input: () => this.update(state), keydown: (e) => keydown(e),
@@ -138,15 +139,35 @@ const content_view = {
     
 }
 
+
+function observe_array(arr, callback) {
+    return new Proxy(arr, {
+        set(target, prop, value, receiver) {
+            const old = target[prop]
+            const result = Reflect.set(target, prop, value, receiver)
+            callback(prop, old, value)
+            return result
+        }
+    })
+}
+
+// Example usage:
+const arr = observe_array([1, 2, 3], (prop, old, value) => {
+    console.log(`Property ${prop} changed from ${old} to ${value}`)
+})
+
+function test() {
+    console.log(">>>arr.push(4)")
+    arr.push(4) // will log the changes for '3' (new length) and index assignment
+    console.log("<<<arr.push(4)")
+}
+
+test()
+
 export const app = {
-    init(content_view) {
-        content_view.init(content_view.state)
-        util.log("app.init")
-    },
+    init(content_view) { content_view.init(content_view.state) },
     inactive() {
-        console.log(">>>app.js app.inactive()")
-        // called before quit and also on app being inactive on iOS
-        console.log("<<<app.js app.inactive()")
+        console.log("app.js: inactive()")
         return "done"
     }
 }
@@ -154,9 +175,7 @@ export const app = {
 window.app = app // IMPORTANT!
 // allow evaluateJavaScript("app.inactive()") call
 
-document.addEventListener('DOMContentLoaded', () => {
-    app.init(content_view)
-})
+document.addEventListener('DOMContentLoaded', () => { app.init(content_view) })
 
 
 /* attic:
