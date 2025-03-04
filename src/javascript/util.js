@@ -1,6 +1,15 @@
 "use strict"
 
-import * as detect from "./detect.js"
+import * as detect     from "./detect.js"
+
+export function assert(condition, ...args) {
+    if (!condition) {
+        var error = 'assertion failed.\x20' +
+                    String(condition) + '\x20' + args.join('\x20')
+        console.trace(error)
+        throw new Error(error)
+    }
+}
 
 const http = (url, method, req = "", done = null) => {
     let error = null
@@ -31,20 +40,34 @@ export const load = (url) => http(url, "GET")
 
 export const post = (url, req = "", done = null) => http(url, "POST", req, done)
 
+export const console_log = [ "start" ]
+
 export const log = (...args) => {
-    return post("./call:log", args.join(''), null)
+    const message = args.join('')
+    console_log.push(message)
+    if (console_log.length > 128) console_log.shift()
+    return post("./call:log", message, null)
 }
 
 export const quit = (...args) => {
     return post("./call:quit", args.join(''), null)
 }
 
-export const console_log = console.log
-
-console.log = (...args) => {
-    log(...args)
-    console_log.apply(console, args);
+function console_intercept() {
+    const saved = {}
+    Object.getOwnPropertyNames(console).forEach(key => {
+        if (typeof console[key] === "function") {
+            saved[key] = console[key].bind(console)
+            console[key] = (...args) => {
+                const short = key.replace(/^console\.?/, "")
+                log(short + ": ", ...args)
+                saved[key](...args)
+            }
+        }
+    })
 }
+
+console_intercept()
 
 export const init_theme = () => {
     let theme = localStorage.getItem("settings.theme")

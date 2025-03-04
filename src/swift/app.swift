@@ -14,7 +14,7 @@ public func inactive() {
     guard let view = webView else { return }
     var wait = true
 //  let start = DispatchTime.now().uptimeNanoseconds
-    view.evaluateJavaScript("inactive()") { result, error in
+    view.evaluateJavaScript("app.inactive()") { result, error in
         if let error = error {
             print("Error calling javascript inactive(): \(error)")
         } else {

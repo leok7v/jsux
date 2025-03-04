@@ -17,11 +17,11 @@ static void start(void) {
 }
 
 static void inactive(void) {
-    printf("inactive\n");
+    printf("C: inactive\n");
 }
 
 static void stop(void) {
-    printf("stop\n");
+    printf("C: stop\n");
 }
 
 extern struct app app = {

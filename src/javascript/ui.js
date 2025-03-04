@@ -1,11 +1,6 @@
 "use strict"
 
-export function assert(condition, ...args) {
-    if (!condition) {
-        var error = String(condition) + '\x20' + args.join('\x20')
-        throw new Error('assertion failed.\x20' + error)
-    }
-}
+import { assert }      from "./util.js"
 
 export function create(tag) {
     const that = document.createElement(tag)

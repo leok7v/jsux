@@ -2,12 +2,14 @@
 
 export let ua = "mozilla/5.0 (macintosh; intel mac os x 10_15_7) applewebkit/605.1.15"
 export let platform = "macintel"
-export let apple  = true
-export let bro    = "safari"
-export let macOS  = false
-export let iPhone = false
-export let iPad   = false
-export let iOS    = false
+export let apple   = true
+export let bro     = "safari"
+export let macOS   = false
+export let iPhone  = false
+export let iPad    = false
+export let iOS     = false
+export let android = false
+export let windows = false
 
 export function init() {
     const html = document.documentElement

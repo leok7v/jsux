@@ -1,65 +1,89 @@
 "use strict"
 
-import { proxy, div, span, button, assert } from "./ui.js"
-
 import * as observable from "./observable.js"
 import * as util       from "./util.js"
+import * as dom        from "./dom.js"
+import { assert }      from "./util.js" // better assert
 
 const debug = false
 
-const traceln = (message) => console.log(message)
+export function render_log(log) {
+    const list = dom.ul()
+    for (const msg of util.console_log) {
+        list.append(dom.li().text(msg))
+    }
+    log.element.innerHTML = ""
+    log.append(list)
+}
 
-const by_id = (id) => document.getElementById(id)
+function create_log() {
+    const log = dom.div().style({
+        position: "fixed",
+        bottom: "0",
+        left: "0",
+        width: "100%",
+        background: "#fff",
+        maxHeight: "200px",
+        overflowY: "auto",
+        borderTop: "1px solid #ccc"
+    })
+    observable.observe(util.console_log)
+        .on({ changed: () => render_log(log) })
+    return log
+}
+
 
 const content_view = {
 
-    state: proxy({ // ui state
+    state: observable.observe({ // ui state
         inc: null,
         dec: null,
         min: null,
         max: null,
         num: null
-    }),
+    }).deep(true),
     
     foo: 'bar', // view variables
     
     init() { // not an closure (aka "arrow function") "this" point to object
         const state  = this.state
         const keydown = (e) => {
-            traceln('keydown ' + e.key)
             if (e.key === 'Enter' && e.target.isContentEditable) {
                 e.preventDefault()
                 e.target.blur()
             }
         }
-        const select = (e) => {
-            const range = document.createRange()
-            range.selectNodeContents(e.target)
-            const sel = window.getSelection()
-            sel.removeAllRanges()
-            sel.addRange(range)
+        const select = (e) => { // need to delay because focus() selects too
+            requestAnimationFrame(() => {
+                const range = document.createRange()
+                range.selectNodeContents(e.target)
+                const sel = window.getSelection()
+                sel.removeAllRanges()
+                sel.addRange(range)
+            })
         }
-        const content = div()
-        content.self().className = 'content'
+        const content = dom.div()
+        content.element.className = 'content'
         const inline = (txt, tab) => {
-            return div().text(txt).display.inline().tabindex(tab).monospace()
+            return dom.div().text(txt).display.inline().tabindex(tab).monospace()
             .contenteditable.plain()
         }
         state.min = inline('0', 0)
         state.max = inline('9', 0)
         state.num = inline('3', 0)
-        state.dec = button().text('➖').monospace()
-        state.inc = button().text('➕').monospace()
+        state.dec = dom.button().text('➖').monospace()
+        state.inc = dom.button().text('➕').monospace()
         const { min, max, num, dec, inc } = state
         const block = (txt) => {
-            return div().display.block().append(span().text(txt).monospace())
+            return dom.div().display.block().append(dom.span().text(txt).monospace())
         }
         const minimum = block('min:\x20').append(min)
         const maximum = block('max:\x20').append(max)
-        const number = div().display.block().append(dec).append(num).append(inc)
+        const number = dom.div().display.block().append(dec).append(num).append(inc)
         content.append(minimum).append(maximum).append(number)
-        document.getElementById('app').appendChild(content.self())
-        for (const key of Object.keys(state)) { state[key].self().id = key }
+        content.append(create_log())
+        document.getElementById('app').appendChild(content.element)
+        for (const key of Object.keys(state)) { state[key].element.id = key }
         min.on({ input: () => this.update(state), keydown: (e) => keydown(e),
                  focus: (e) => select(e) })
         max.on({ input: () => this.update(state), keydown: (e) => keydown(e),
@@ -79,8 +103,13 @@ const content_view = {
         inc.on({ click: () => inc_dec(+1) })
         dec.on({ click: () => inc_dec(-1) })
         if (debug) {
-            state.on.changed((target, prop, value) => {
-                traceln('Changed: ' + prop + ' to ' + value)
+            state.on({
+                changing: (o, t, w, v) => { // object, target, was, value
+                    console.log(`changing .o:${o} .t:${t} .w:${w} .v:${v}`)
+                },
+                changed: (o, t, w, v) => { // object, target, was, value
+                    console.log(`changed  .o:${o} .t:${t} .w:${w} .v:${v}`)
+                }
             })
         }
     },
@@ -109,65 +138,8 @@ const content_view = {
     
 }
 
-const font_family = [
-    '-apple-system',
-    'BlinkMacSystemFont',
-    'Segoe UI',
-    'Roboto',
-    'sans-serif'
-].join(',')
-
-const css = [
-    ['[data-theme="dark"]', 'filter: invert(100%)'],
-    ['[data-theme="light"]', 'filter: invert(0)'],
-    ['::-webkit-scrollbar', 'display: none'],
-    [':root', '--font-size: 150%'],
-    ['*', 'box-sizing: border-box'],
-    ['html, body',
-     'overflow: hidden',
-     'overscroll-behavior: contain',
-     'font-size: var(--font-size)',
-     'font-family: ' + font_family,
-     'user-select: none'],
-    ['button',
-     'padding: 0',
-     'margin: 0',
-     'font-size: 0.75em',
-     'min-width: 1.25em',
-     'max-width: 1.25em',
-     'min-height: 1.25em',
-     'max-height: 1.25em',
-     'align-items: center',
-     'justify-content: center'],
-    ['.disable', 'opacity: 0.5'],
-    ['.invisible', 'visibility: hidden'],
-    ['.hidden', 'display: none'],
-    ['[contenteditable="plaintext-only"]',
-     'border: 1px solid #888',
-     'min-width: 0.75em',
-     'max-width: 0.75em',
-     'display: inline-flex',
-     'flex: 1'],
-    ['.content > *',
-     'display: inline-flex',
-     'align-items: center',
-     'gap: 0.5em',
-     'margin: 0.5em 0'],
-    ['.content > *:last-child', 'margin-bottom: 0']
-]
-
-function theme() {
-    const darkMode = window.matchMedia('(prefers-color-scheme: dark)')
-    let percentage = darkMode.matches ? 100 : 0
-    document.documentElement.style.filter = `invert(${percentage}%)`
-    darkMode.addEventListener('change', (e) => {
-        let percentage = e.matches ? 100 : 0
-        document.documentElement.style.filter = `invert(${percentage}%)`
-    })
-}
-
 export const app = {
-    init() {
+    init(content_view) {
         content_view.init(content_view.state)
         util.log("app.init")
     },
@@ -179,88 +151,18 @@ export const app = {
     }
 }
 
-window.inactive = app.inactive // IMPORTANT to allow call from swift side
-
-function test_observable() {
-    observable.test(true) // vebose
-    
-    const t = { a: 1, nested: { b: 2 } } // `t` target
-    const callbacks = {
-        changing: (prop, oldVal, newVal) =>
-            console.log(`${prop}: ${oldVal} -> ${newVal}`),
-        changed: (prop, oldVal, newVal) =>
-            console.log(`${prop} now ${newVal}`)
-    }
-
-    const phenomenon = observable.create(t)
-        .only("a")      // Only watch property 'a'
-        .deep(true)     // Observe nested objects
-        .alter(true)    // Only trigger if value changes
-        .on(callbacks)
-    phenomenon.proxy.a = 153          // Modify the returned proxy
-    phenomenon.proxy.nested.b = 42
-    phenomenon.off(callbacks)
-}
+window.app = app // IMPORTANT!
+// allow evaluateJavaScript("app.inactive()") call
 
 document.addEventListener('DOMContentLoaded', () => {
-    const head = document.createElement('head')
-    const meta1 = document.createElement('meta')
-    meta1.setAttribute('charset', 'UTF-8')
-    head.appendChild(meta1)
-    const title = document.createElement('title')
-    title.textContent = 'App'
-    head.appendChild(title)
-    const meta2 = document.createElement('meta')
-    meta2.setAttribute('name', 'viewport')
-    const device_width = [
-        'width=device-width',
-        'initial-scale=1.0',
-        'maximum-scale=1.0',
-        'user-scalable=no'
-    ].join(',')
-    meta2.setAttribute('content', device_width)
-    head.appendChild(meta2)
-    const style = document.createElement('style')
-    head.appendChild(style)
-    document.documentElement.appendChild(head)
-    let i = 0
-    for (const [selector, ...rules] of css) {
-        const body = rules.join('; ')
-        const rule = selector + ' { ' + body + ' }'
-        style.sheet.insertRule(rule, i++)
-    }
-    theme()
-    
-    test_observable()
-
     app.init(content_view)
 })
 
-/*
-// The only two events coming are "DOMContentLoaded" and "load"
+
+/* attic:
  
- document.addEventListener("DOMContentLoaded", function() {
-    console.log("DOMContentLoaded: DOM is parsed (HTML only).");
-});
-
-window.addEventListener("load", function() {
-    console.log("load: Entire page is fully loaded.");
-});
-
-// NONE of events below are ever happen:
-
-window.addEventListener("beforeunload", function(event) {
-    console.log("beforeunload: Page about to unload.");
-});
-
-window.addEventListener("pagehide", function(event) {
-    console.log("pagehide: Page is hidden/unloaded.");
-});
-
-document.addEventListener("visibilitychange", function() {
-    console.log("visibilitychange:", document.visibilityState);
-    if (document.visibilityState === "hidden") {
-        console.log("visibilitychange: hidden (backgrounded)");
-    }
-});
+ Unicode: ↺ ↻ ⟲ ⟳ ⥀ ⥁ ⤽ ⤼ ⤺ ⤻ ⎘ ⎗ 📄
+          ❰❰ ❱❱  ❮❮ ❯❯  ➰ ✎ ✕ ❖ ⟲ ⟳䷖ ䷀ ⌫ ⎅
+          ⎆ ⏎ ⏾ ☀ ☼ ㊐ ⽇ 𖣖 🗨
+ 
 */
